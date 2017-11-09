@@ -1,0 +1,8 @@
+if [ $# -lt 2 ] ; then 
+    echo "not enough parameters"; 
+    echo "Usage: $0 c-filename output-c-filename";
+    exit -1; 
+    fi
+
+uncrustify -c ~/Projects/uncrustify-configs/bartek.cfg -f $1 -o $2
+

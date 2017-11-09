@@ -1,0 +1,2 @@
+svn list --verbose --recursive $1 | awk -f /home/bsokol/bin/svn_repo_size_parse.awk
+

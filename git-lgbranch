@@ -1,0 +1,4 @@
+# usage git-lgbranch branch rootbranch
+
+git lg $(git merge-base $2 $1)..$1
+

@@ -1,0 +1,10 @@
+if [ $# -lt 2 ] ; then 
+    echo "not enough parameters"; 
+    echo "Usage: $0 c-filename pdf-filename";
+    exit -1; 
+    fi
+    
+a2ps -o "$2.ps" --medium=A4 --font-size=7 --columns=1 -R -C --highlight-level=normal --pro=color "$1"
+ps2pdf -sPAPERSIZE=a4 "$2.ps" $2
+rm "$2.ps"
+

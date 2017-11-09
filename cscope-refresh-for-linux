@@ -1,0 +1,13 @@
+echo "Killing old files.."
+rm -f cscope.*
+
+# grep -v 'coder-eclipse\|MinGW_Unittest\|netsim\|opsim' |\
+
+echo "Searching for files.."
+find . -regex '.*\.\([CchH]\|cpp\|CC\|HH\)$' > cscope.files
+
+echo "Rebuilding index.."
+cscope -b -q -k
+
+echo "Done"
+

@@ -1,0 +1,62 @@
+echo "Cleaning repository..."
+
+## a word of comment:
+## * I need to replace spaces with ^ because files with spaces otherwise are not processed ok (show
+##   as different lines)
+## * I need to handle ignored files in a special way. They are ignored so they may polute the 
+##   directory. This may apply to, say, *.o files that after a cleanup we want to recompile. 
+##   So there is a need to get rid of them.
+## * I do not know how to list still existing files so I do not print anything if ls return
+##   "no such file or directory". This comment applies to the "check if ok" section
+
+# Removing untracked files...
+selectedfiles=$(svn status --ignore-externals | grep '^\?'  | sed "s/\?       //" | sed "s/ /^/g")
+if [[ -n $selectedfiles ]] ; 
+  then 
+    echo "=== Removing untracked files..."; 
+    for i in $selectedfiles ; do j=$(echo $i | sed "s/\^/ /g") ; chmod a+w -R "$j" ; rm -r -v "$j" ; 
+    done ; 
+fi
+
+# Restore deleted files
+selectedfiles=$(svn status --ignore-externals | grep '^\!'  | sed "s/\!       //" | sed "s/ /^/g")
+if [[ -n $selectedfiles ]] ; 
+  then 
+    echo "=== Restoring deleted files..."; 
+    for i in $selectedfiles ; do j=$(echo $i | sed "s/\^/ /g") ; svn revert "$j" ; 
+    done ; 
+fi
+
+# Reverting modifications
+selectedfiles=$(svn status --ignore-externals | grep '^M'  | sed "s/M       //" | sed "s/ /^/g")
+if [[ -n $selectedfiles ]] ; 
+  then 
+    echo "=== Reverting modifications..."; 
+    for i in $selectedfiles ; do j=$(echo $i | sed "s/\^/ /g") ; svn revert "$j" ; 
+    done ; 
+fi
+
+echo "=== Removing ignored files if any"
+# Remove ignored files
+for folder in $(find  -type d) ; 
+  do 
+    (cd $folder; files=$(svn pg svn:ignore 2>/dev/null | xargs);  
+     if [[ -n $files ]] ; 
+       then rm -rf $files; 
+     fi) ;
+  done
+
+
+# check if ok
+echo "=== Leftover changes, if any:"
+svn status --ignore-externals | grep -v 'X       '
+for folder in $(find  -type d) ; 
+  do 
+    (cd $folder; files=$(svn pg svn:ignore 2>/dev/null | xargs);  
+     if [[ -n $files ]] ; 
+       then lsresult=$(ls $files 2>&1 | sed "s/ls:.*directory$//");
+       if [[ -n $lsresult ]] ; then echo $lsresult ; fi;
+     fi) ;
+  done
+
+echo "Done"
