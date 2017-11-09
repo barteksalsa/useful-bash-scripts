@@ -1,0 +1,37 @@
+[alias]
+	co = checkout
+	ci = commit
+	br = branch
+	st = status
+	findbranch = name-rev
+	lg = log --graph --decorate --pretty=format:'%C(yellow)%h%C(bold red)%d%Creset %C(blue)%ad,%an%Creset %s' --date=short --abbrev-commit  
+	lgprint = log --graph --no-color --pretty=format:'%h%d [%cn %cd]  %s' --date=short --abbrev-commit
+[color]
+	status = true
+	diff = true
+	branch = auto
+	interactive = true
+	tag = true
+[user]
+	name = bsokol
+	email = bsokol@woodward.com
+[merge]
+	tool = meld
+[core]
+	editor = gedit
+	excludesfile = /home/barteks/.gitignore_global
+[help]
+	autocorrect = 1
+[color "diff"]
+	new = green
+	old = red
+	
+[difftool]
+	prompt = no
+	
+[push]
+	default = simple
+[http]
+	postBuffer = 524288000
+[credential]
+	helper = store
