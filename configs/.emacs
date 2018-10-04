@@ -1,11 +1,53 @@
-;; Change the indentation amount to 4 spaces instead of 2.
-;; You have to do it in this complicated way because of the
-;; strange way the cc-mode initializes the value of `c-basic-offset'.
-(add-hook 'c-mode-hook (lambda () (setq c-basic-offset 4)))
+;; Convenient package handling in emacs
+
+(require 'package)
+;; use packages from marmalade
+(add-to-list 'package-archives '("marmalade" . "http://marmalade-repo.org/packages/"))
+;; and the old elpa repo
+(add-to-list 'package-archives '("elpa-old" . "http://tromey.com/elpa/"))
+;; and automatically parsed versiontracking repositories.
+(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+;; Make sure a package is installed
+(defun package-require (package)
+  "Install a PACKAGE unless it is already installed 
+or a feature with the same name is already active.
+
+Usage: (package-require 'package)"
+  ; try to activate the package with at least version 0.
+  (package-activate package '(0))
+  ; try to just require the package. Maybe the user has it in his local config
+
+  (condition-case nil
+      (require package)
+    ; if we cannot require it, it does not exist, yet. So install it.
+    (error (progn
+             (package-install package)
+             (require package)))))
+
+;; Initialize installed packages
+(package-initialize)  
+;; package init not needed, since it is done anyway in emacs 24 after reading the init
+;; but we have to load the list of available packages, if it is not available, yet.
+(when (not package-archive-contents)
+  (with-timeout (15 (message "updating package lists failed due to timeout"))
+    (package-refresh-contents)))
 
 
+
+;; C SETTINGS
+;; You can determine which offset to edit by hitting [ctrl-c ctrl-s] on any line. On the first line with a brace after the if it will say substatement-open
+(setq-default c-basic-offset 2)
+;;(c-set-style bsd)
+(defun my-c-mode-hook()
+  (c-set-style "bsd")
+  (setq c-basic-offset 4))
+
+(add-hook 'c-mode-common-hook 'my-c-mode-hook)
+
+;; CSCOPE
 (setq cscope-do-not-update-database t)
-(setq cscope-option-kernel-mode t)
+;(setq cscope-option-kernel-mode t)
 (load-file "/usr/share/emacs/site-lisp/xcscope/xcscope.el")
 (require 'xcscope)
 
@@ -57,14 +99,14 @@
 (setq font-lock-maximum-decoration t)
 
 ;; It is much more pleasant and less tiring to use a dark background.
-;;(set-foreground-color "white")
-;;(set-background-color "black")
+(set-foreground-color "black")
+(set-background-color "white")
 
 ;; Set cursor and mouse colours:
 ;;(set-cursor-color "yellow")
 ;;(set-mouse-color "white")
 
-(global-set-key [s-f1] 'goto-line)
+(global-set-key [s-f12] 'goto-line)
 
 ;;________________________________________________________________
 ;;    Don't display initial logo
@@ -141,3 +183,93 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
+; The titles of windows of GNU Emacs normally look pretty useless (just stating emacs@host), but it’s easy to make them display useful information: 
+;; Set the frame title as by http://www.emacswiki.org/emacs/FrameTitle
+(setq frame-title-format (list "%b ☺ " (user-login-name) "@" (system-name) "%[ - GNU %F " emacs-version)
+      icon-title-format (list "%b ☻ " (user-login-name) "@" (system-name) " - GNU %F " emacs-version))
+
+
+;; Highlight TODO and FIXME in comments 
+(package-require 'fic-ext-mode)
+(defun add-something-to-mode-hooks (mode-list something)
+  "helper function to add a callback to multiple hooks"
+  (dolist (mode mode-list)
+    (add-hook (intern (concat (symbol-name mode) "-mode-hook")) something)))
+
+(add-something-to-mode-hooks '(c++ tcl emacs-lisp python text markdown latex) 'fic-ext-mode)
+
+
+
+
+; save the place in files
+(require 'saveplace)
+(setq-default save-place t)
+
+
+
+
+;; Flycheck: On the fly syntax checking
+(package-require 'flycheck)
+(add-hook 'after-init-hook #'global-flycheck-mode)
+; stronger error display
+(defface flycheck-error
+  '((t (:foreground "red" :underline (:color "Red1" :style wave) :weight bold)))
+  "Flycheck face for errors"
+  :group "flycheck")
+
+
+; To select a file in a huge directory, just type a few letters from that file in the correct order, leaving out the non-identifying ones. Darn cool! 
+; use ido mode for file and buffer Completion when switching buffers
+(require 'ido)
+(ido-mode t)
+
+; Code folding is pretty cool to get an overview of a complex structure. So why shouldn’t you be able to do that with any kind of structured data? 
+; use allout minor mode to have outlining everywhere.
+(allout-mode)
+
+
+; Add proper word wrapping
+(global-visual-line-mode t)
+
+
+
+
+;; Org-mode is that kind of simple thing which evolves to a way of life when you realize that most of your needs actually are simple - and that the complex things can be done in simple ways, too.
+;; It provides simple todo-lists, inline-code evaluation (as in this file) and a full-blown literate programming, reproducible research publishing platform. All from the same simple basic structure.
+;; It might change your life… and it is the only planning solution which ever prevailed against my way of life and organization. 
+
+; Activate org-mode
+(require 'org)
+; and some more org stuff
+; http://orgmode.org/guide/Activation.html#Activation
+; The following lines are always needed.  Choose your own keys.
+(add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+
+
+
+;; git message display
+
+(require 'git-messenger) ;; You need not to load if you install with package.el
+(global-set-key (kbd "C-x v p") 'git-messenger:popup-message)
+
+(define-key git-messenger-map (kbd "m") 'git-messenger:copy-message)
+
+;; Use magit-show-commit for showing status/diff commands
+(custom-set-variables
+ '(git-messenger:use-magit-popup t))
+
+
+;;; Another method for vi emulation of the % command
+;;; You could also bind a modified version of the first command to the “%” key:
+(defun goto-match-paren (arg)
+  "Go to the matching parenthesis if on parenthesis, otherwise insert %.
+vi style of % jumping to matching brace."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+
+(global-set-key (kbd "%") 'goto-match-paren)
+
