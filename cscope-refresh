@@ -4,17 +4,11 @@ rm -f cscope.*
 # grep -v 'coder-eclipse\|MinGW_Unittest\|netsim\|opsim' |\
 
 echo "Searching for files.."
-find . -regex '.*\.\([CchH]\|cpp\)$' | grep -v 'Platforms/\(Atlas\|Eval\|MicroNet\|RTNGateway\|WG_2301\|WBworkspace\)' |\
- grep -v 'coder-eclipse\|MinGW_Unittest' |\
- grep -v 'WgxOs\|VxWorksSMP\|\(VxWorksOs/Support/VxSupport68\)' |\
- grep -v 'vxworks-6.9/target/usr/src/' |\
- grep -v 'vxworks-6.9/target/usr/h/' |\
- grep -vi 'unittest' |\
- grep -vi 'pctest' |\
- grep -vi 'linux' > cscope.files
+find . -regex '.*\.\([CchH]\|cpp\)$' > cscope.files
 
 echo "Rebuilding index.."
 cscope -b -q -k
 
 echo "Done"
+
 

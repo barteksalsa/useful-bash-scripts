@@ -10,6 +10,6 @@ exists=$(git rev-list --objects --all | grep $1 | wc -l)
 if [[ $exists -lt 1 ]] ; then echo "Blob not found" exit -2 ; else echo "Blob found. Searching for commits..." ; fi
 
 # find commits
-git log --pretty=format:'%T %h %s' $2 | while read tree commit subject ; do if git ls-tree -r $tree | grep -q $1 ; then echo $commit "$subject"; exit 0; fi ; done
+git log --pretty=format:'%T %h %s' $2 | while read tree commit subject ; do if git ls-tree -r $tree :/ | grep -q $1 ; then echo $commit "$subject"; exit 0; fi ; done
 
 echo "!! Limited to the latest commit !!"
