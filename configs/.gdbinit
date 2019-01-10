@@ -1,3 +1,23 @@
+#-------------------------------------------
+# AUTOLOAD PATHS
+#
+add-auto-load-safe-path /home/barteks/Projects/zephyr/samples/hello_world/build-nrf52840_pca10056/.gdbinit
+
+
+#-------------------------------------------
+# PROMPT
+#
+set prompt \033[31mgdb$ \033[0m
+set radix 16
+set confirm no
+set height 0
+set width 0
+
+
+#-------------------------------------------
+# SHORTCUTS
+#
+
 define rh
 monitor reset halt
 end
@@ -8,10 +28,9 @@ interrupt
 rh
 end
 
-set prompt \033[31mgdb$ \033[0m
-set height 0
-set width 0
-set output-radix 0x10
-set input-radix 0x10
-set confirm off
 
+#--------------------------------------------
+# STARTUP
+#
+connect
+rh
