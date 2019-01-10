@@ -6,6 +6,8 @@
 	findbranch = name-rev
 	lg = log --graph --decorate --pretty=format:'%C(yellow)%h%C(bold red)%d%Creset %C(blue)%ad,%an%Creset %s' --date=short --abbrev-commit  
 	lgprint = log --graph --no-color --pretty=format:'%h%d [%cn %cd]  %s' --date=short --abbrev-commit
+	root = rev-parse --show-toplevel
+
 [color]
 	status = true
 	diff = true
@@ -13,8 +15,8 @@
 	interactive = true
 	tag = true
 [user]
-	name = bsokol
-	email = bsokol@woodward.com
+	name = Bartosz Sokolski
+	email = bartosz.sokolski@nordicsemi.no
 [merge]
 	tool = meld
 [core]
@@ -35,3 +37,6 @@
 	postBuffer = 524288000
 [credential]
 	helper = store
+
+[commit]
+	template = /home/barteks/Library/git/commit.template
